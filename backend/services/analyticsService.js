@@ -3,6 +3,39 @@ import Analytics from '../models/Analytics.js';
 
 class AnalyticsService {
   /**
+   * Normalize analytics payload values before persisting
+   * @param {Object} analyticsData
+   * @returns {Object}
+   */
+  normalizeAnalyticsData(analyticsData = {}) {
+    const ipAddress = analyticsData.ipAddress || 'unknown';
+    const userAgent = analyticsData.userAgent || 'unknown';
+    const referrer = analyticsData.referrer || 'direct';
+
+    return {
+      ipAddress,
+      userAgent,
+      referrer,
+      country: analyticsData.country || 'unknown'
+    };
+  }
+
+  /**
+   * Track a click event for a URL
+   * @param {string} urlId - URL ID
+   * @param {Object} analyticsData - Analytics data (IP, user agent, referrer, country)
+   * @returns {Promise<Object>} Analytics event
+   */
+  async trackClickEvent(urlId, analyticsData = {}) {
+    const normalizedData = this.normalizeAnalyticsData(analyticsData);
+
+    return Analytics.create({
+      urlId,
+      ...normalizedData
+    });
+  }
+
+  /**
    * Get analytics for a specific URL
    * @param {string} urlId - URL ID
    * @param {string} userId - User ID

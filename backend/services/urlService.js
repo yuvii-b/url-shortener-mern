@@ -1,6 +1,6 @@
 import Url from '../models/Url.js';
-import Analytics from '../models/Analytics.js';
 import { generateUniqueShortCode } from '../utils/hashGenerator.js';
+import analyticsService from './analyticsService.js';
 
 class UrlService {
   /**
@@ -100,11 +100,8 @@ class UrlService {
     url.lastAccessedAt = new Date();
     await url.save();
 
-    // Log analytics
-    await Analytics.create({
-      urlId: url._id,
-      ...analyticsData
-    });
+    // Log analytics via service to keep tracking behavior centralized
+    await analyticsService.trackClickEvent(url._id, analyticsData);
 
     return url;
   }
