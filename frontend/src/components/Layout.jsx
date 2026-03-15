@@ -46,6 +46,25 @@ function MenuIcon({ type }) {
     );
   }
 
+  if (type === 'user') {
+    return (
+      <svg {...commonProps}>
+        <circle cx="12" cy="8" r="4" />
+        <path d="M4 20c1.8-3.2 4.5-5 8-5s6.2 1.8 8 5" />
+      </svg>
+    );
+  }
+
+  if (type === 'logout') {
+    return (
+      <svg {...commonProps}>
+        <path d="M15 3h4a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2h-4" />
+        <path d="M10 17l5-5-5-5" />
+        <path d="M15 12H3" />
+      </svg>
+    );
+  }
+
   return (
     <svg {...commonProps}>
       <path d="M4 20V9" />
@@ -93,7 +112,7 @@ export default function Layout({ children }) {
         </button>
 
         <div className="brand side-brand">
-          <span className="brand-mark" />
+          <img src="/favicon.svg" alt="NovaLink" className="brand-favicon" />
           {!collapsed ? <span>NovaLink</span> : null}
         </div>
 
@@ -146,13 +165,24 @@ export default function Layout({ children }) {
           {user ? (
             <>
               {!collapsed ? <div className="muted">Signed in as @{user.username}</div> : null}
-              <button type="button" className="button button-ghost" onClick={onLogout}>
-                {collapsed ? 'Out' : 'Logout'}
+              <button
+                type="button"
+                className={`button button-ghost ${collapsed ? 'side-auth-icon' : ''}`}
+                onClick={onLogout}
+                title="Logout"
+                aria-label="Logout"
+              >
+                {collapsed ? <MenuIcon type="logout" /> : 'Logout'}
               </button>
             </>
           ) : (
-            <NavLink to="/auth" className="button button-primary">
-              {collapsed ? 'In' : 'Login / Register'}
+            <NavLink
+              to="/auth"
+              className={`button button-primary ${collapsed ? 'side-auth-icon' : ''}`}
+              title="Login / Register"
+              aria-label="Login or Register"
+            >
+              {collapsed ? <MenuIcon type="user" /> : 'Login / Register'}
             </NavLink>
           )}
         </div>

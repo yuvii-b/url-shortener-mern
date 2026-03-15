@@ -112,11 +112,10 @@ a {
   font-size: 1.12rem;
 }
 
-.brand-mark {
+.brand-favicon {
   width: 30px;
-  aspect-ratio: 1;
+  height: 30px;
   border-radius: 8px;
-  background: linear-gradient(135deg, var(--accent), var(--teal));
 }
 
 .nav-links {
@@ -246,6 +245,18 @@ a {
 
 .side-footer .button {
   min-height: 44px;
+}
+
+.side-auth-icon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 10px;
+}
+
+.side-auth-icon svg {
+  width: 18px;
+  height: 18px;
 }
 
 .side-nav.collapsed .menu-item {
