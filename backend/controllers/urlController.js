@@ -168,6 +168,14 @@ class UrlController {
     try {
       const { shortCode } = req.params;
 
+      // Validate short code format
+      if (!shortCode || shortCode.length === 0) {
+        return res.status(400).json({
+          success: false,
+          message: 'Invalid short code provided'
+        });
+      }
+
       const analyticsData = {
         ipAddress: req.ip || req.connection.remoteAddress || 'unknown',
         userAgent: req.get('user-agent') || 'unknown',
@@ -176,21 +184,31 @@ class UrlController {
 
       const url = await urlService.getUrlByShortCode(shortCode, analyticsData);
 
-      // Redirect to original URL
-      res.redirect(url.originalUrl);
+      if (!url || !url.originalUrl) {
+        return res.status(404).json({
+          success: false,
+          message: 'Short link not found or expired'
+        });
+      }
+
+      // Redirect to original URL with permanent redirect
+      res.redirect(301, url.originalUrl);
     } catch (error) {
-      console.error('Redirect error:', error);
+      // Only log actual server errors, not 404s
+      if (error.message !== 'URL not found') {
+        console.error('Redirect error:', error);
+      }
 
       if (error.message === 'URL not found') {
         return res.status(404).json({
           success: false,
-          message: 'URL not found'
+          message: 'Short link not found or expired'
         });
       }
 
       res.status(500).json({
         success: false,
-        message: 'Server error during redirection'
+        message: 'Unable to process redirect'
       });
     }
   }

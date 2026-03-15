@@ -18,7 +18,8 @@ const allowedOrigins = [
   process.env.FRONTEND_URL,
   ...(process.env.CORS_ORIGINS ? process.env.CORS_ORIGINS.split(',') : []),
   'http://localhost:5173',
-  'http://127.0.0.1:5173'
+  'http://127.0.0.1:5173',
+  'https://novalink.vercel.app' // Production frontend
 ]
   .map((origin) => origin?.trim())
   .filter(Boolean);
@@ -29,10 +30,12 @@ app.use(
       if (!origin || allowedOrigins.includes(origin)) {
         return callback(null, true);
       }
-      return callback(new Error(`CORS blocked for origin: ${origin}`));
+      console.warn(`CORS rejected for origin: ${origin}`);
+      return callback(new Error(`CORS policy: origin not allowed`));
     },
     methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS'],
-    credentials: true
+    credentials: true,
+    allowedHeaders: ['Content-Type', 'Authorization']
   })
 );
 app.use(express.json());
