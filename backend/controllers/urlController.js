@@ -26,7 +26,7 @@ class UrlController {
 
       const response = {
         success: true,
-        message: isNew ? 'URL shortened successfully' : 'URL already shortened',
+        message: 'URL shortened successfully',
         requiresAuthForAnalytics: !userId,
         data: {
           originalUrl: url.originalUrl,
