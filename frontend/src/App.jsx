@@ -15,11 +15,9 @@ export default function App() {
       <Route
         path="/"
         element={
-          <ProtectedRoute>
-            <Layout>
-              <HomePage />
-            </Layout>
-          </ProtectedRoute>
+          <Layout>
+            <HomePage />
+          </Layout>
         }
       />
       <Route
@@ -32,7 +30,7 @@ export default function App() {
           </ProtectedRoute>
         }
       />
-      <Route path="*" element={<Navigate to={token ? '/' : '/auth'} replace />} />
+      <Route path="*" element={<Navigate to="/" replace />} />
     </Routes>
   );
 }

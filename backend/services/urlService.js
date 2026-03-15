@@ -1,4 +1,5 @@
 import Url from '../models/Url.js';
+import Analytics from '../models/Analytics.js';
 import { generateUniqueShortCode } from '../utils/hashGenerator.js';
 import analyticsService from './analyticsService.js';
 
@@ -6,10 +7,10 @@ class UrlService {
   /**
    * Shorten a URL
    * @param {string} originalUrl - Original URL to shorten
-   * @param {string} userId - User ID
+    * @param {string|null} userId - User ID for authenticated users, null for guests
    * @returns {Promise<Object>} Created URL
    */
-  async shortenUrl(originalUrl, userId) {
+    async shortenUrl(originalUrl, userId = null) {
     // Ensure URL has protocol
     let formattedUrl = originalUrl;
     if (!originalUrl.startsWith('http://') && !originalUrl.startsWith('https://')) {
@@ -17,10 +18,8 @@ class UrlService {
     }
 
     // Check if URL already exists for this user
-    const existingUrl = await Url.findOne({
-      originalUrl: formattedUrl,
-      userId
-    });
+    const ownershipQuery = userId ? { userId } : { userId: null };
+    const existingUrl = await Url.findOne({ originalUrl: formattedUrl, ...ownershipQuery });
 
     if (existingUrl) {
       return { url: existingUrl, isNew: false };
@@ -38,7 +37,7 @@ class UrlService {
     const url = await Url.create({
       originalUrl: formattedUrl,
       shortCode,
-      userId
+      userId: userId || null
     });
 
     return { url, isNew: true };
@@ -55,6 +54,50 @@ class UrlService {
       .select('originalUrl shortCode clicks createdAt lastAccessedAt');
 
     return urls;
+  }
+
+  /**
+   * Claim guest-created links for an authenticated user
+   * @param {string} userId - User ID
+   * @param {string[]} shortCodes - Guest short codes
+   * @returns {Promise<{claimedCount:number,claimedShortCodes:string[]}>}
+   */
+  async claimGuestLinks(userId, shortCodes = []) {
+    const normalizedCodes = [...new Set(shortCodes.filter((code) => typeof code === 'string'))].slice(
+      0,
+      100
+    );
+
+    if (!normalizedCodes.length) {
+      return { claimedCount: 0, claimedShortCodes: [] };
+    }
+
+    const guestUrls = await Url.find({
+      shortCode: { $in: normalizedCodes },
+      userId: null
+    }).select('_id shortCode');
+
+    if (!guestUrls.length) {
+      return { claimedCount: 0, claimedShortCodes: [] };
+    }
+
+    const guestUrlIds = guestUrls.map((url) => url._id);
+    const claimedShortCodes = guestUrls.map((url) => url.shortCode);
+
+    await Url.updateMany(
+      {
+        _id: { $in: guestUrlIds },
+        userId: null
+      },
+      {
+        $set: { userId }
+      }
+    );
+
+    return {
+      claimedCount: claimedShortCodes.length,
+      claimedShortCodes
+    };
   }
 
   /**

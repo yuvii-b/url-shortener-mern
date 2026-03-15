@@ -14,3 +14,8 @@ export async function deleteUrl(token, urlId) {
   const { data } = await apiClient.delete(`/url/${urlId}`, authHeaders(token));
   return data;
 }
+
+export async function claimGuestLinks(token, shortCodes) {
+  const { data } = await apiClient.post('/url/claim', { shortCodes }, authHeaders(token));
+  return data.data;
+}

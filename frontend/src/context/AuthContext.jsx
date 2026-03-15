@@ -1,5 +1,7 @@
 import { createContext, useCallback, useContext, useEffect, useMemo, useState } from 'react';
 import { getCurrentUser, loginUser, registerUser } from '../services/authApi.js';
+import { claimGuestLinks } from '../services/urlApi.js';
+import { loadGuestShortCodes, removeGuestShortCodes } from '../utils/guestLinks.js';
 
 const AuthContext = createContext(null);
 
@@ -30,7 +32,7 @@ export function AuthProvider({ children }) {
     bootstrap();
   }, [token]);
 
-  const setAuthState = useCallback((authResponse) => {
+  const setAuthState = useCallback(async (authResponse) => {
     localStorage.setItem('token', authResponse.token);
     setToken(authResponse.token);
     setUser({
@@ -38,12 +40,30 @@ export function AuthProvider({ children }) {
       username: authResponse.username,
       email: authResponse.email
     });
+
+    const guestShortCodes = loadGuestShortCodes();
+    if (!guestShortCodes.length) {
+      return;
+    }
+
+    try {
+      const claimResult = await claimGuestLinks(authResponse.token, guestShortCodes);
+      const claimedShortCodes = Array.isArray(claimResult?.claimedShortCodes)
+        ? claimResult.claimedShortCodes
+        : [];
+
+      if (claimedShortCodes.length) {
+        removeGuestShortCodes(claimedShortCodes);
+      }
+    } catch {
+      // Keep guest short codes for later retry.
+    }
   }, []);
 
   const login = useCallback(
     async (payload) => {
       const response = await loginUser(payload);
-      setAuthState(response);
+      await setAuthState(response);
       return response;
     },
     [setAuthState]
@@ -52,7 +72,7 @@ export function AuthProvider({ children }) {
   const register = useCallback(
     async (payload) => {
       const response = await registerUser(payload);
-      setAuthState(response);
+      await setAuthState(response);
       return response;
     },
     [setAuthState]

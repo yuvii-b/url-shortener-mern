@@ -1,14 +1,25 @@
 import mongoose from 'mongoose';
 
+const isValidHttpUrl = (value) => {
+  if (!value || typeof value !== 'string') {
+    return false;
+  }
+
+  try {
+    const parsed = new URL(value);
+    return parsed.protocol === 'http:' || parsed.protocol === 'https:';
+  } catch {
+    return false;
+  }
+};
+
 const urlSchema = new mongoose.Schema({
   originalUrl: {
     type: String,
     required: [true, 'Original URL is required'],
     trim: true,
     validate: {
-      validator: function(v) {
-        return /^(https?:\/\/)?([\da-z.-]+)\.([a-z.]{2,6})([/\w .-]*)*\/?$/.test(v);
-      },
+      validator: isValidHttpUrl,
       message: 'Please provide a valid URL'
     }
   },
@@ -22,7 +33,7 @@ const urlSchema = new mongoose.Schema({
   userId: {
     type: mongoose.Schema.Types.ObjectId,
     ref: 'User',
-    required: [true, 'User ID is required']
+    default: null
   },
   clicks: {
     type: Number,

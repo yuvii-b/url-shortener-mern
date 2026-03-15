@@ -22,16 +22,28 @@ export default function Layout({ children }) {
           <NavLink to="/" className={({ isActive }) => `nav-link ${isActive ? 'active' : ''}`}>
             Shortener
           </NavLink>
-          <NavLink
-            to="/analytics"
-            className={({ isActive }) => `nav-link ${isActive ? 'active' : ''}`}
-          >
-            Analytics
-          </NavLink>
-          <span className="muted">@{user?.username}</span>
-          <button type="button" className="button button-ghost" onClick={onLogout}>
-            Logout
-          </button>
+
+          {user ? (
+            <>
+              <NavLink
+                to="/analytics"
+                className={({ isActive }) => `nav-link ${isActive ? 'active' : ''}`}
+              >
+                Analytics
+              </NavLink>
+              <span className="muted">@{user.username}</span>
+              <button type="button" className="button button-ghost" onClick={onLogout}>
+                Logout
+              </button>
+            </>
+          ) : (
+            <>
+              <span className="muted">Login required for analytics</span>
+              <NavLink to="/auth" className="button button-primary">
+                Login / Register
+              </NavLink>
+            </>
+          )}
         </nav>
       </header>
 

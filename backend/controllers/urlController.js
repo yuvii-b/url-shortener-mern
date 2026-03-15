@@ -5,7 +5,7 @@ class UrlController {
   /**
    * Shorten a URL
    * @route   POST /api/url/shorten
-   * @access  Private
+  * @access  Public (optionally linked to logged-in user)
    */
   async shortenUrl(req, res) {
     try {
@@ -19,13 +19,15 @@ class UrlController {
       }
 
       const { originalUrl } = req.body;
+      const userId = req.user?._id || null;
 
       // Call service to shorten URL
-      const { url, isNew } = await urlService.shortenUrl(originalUrl, req.user._id);
+      const { url, isNew } = await urlService.shortenUrl(originalUrl, userId);
 
       const response = {
         success: true,
         message: isNew ? 'URL shortened successfully' : 'URL already shortened',
+        requiresAuthForAnalytics: !userId,
         data: {
           originalUrl: url.originalUrl,
           shortCode: url.shortCode,
@@ -38,6 +40,14 @@ class UrlController {
       res.status(isNew ? 201 : 200).json(response);
     } catch (error) {
       console.error('Shorten URL error:', error);
+
+      if (error.name === 'ValidationError') {
+        return res.status(400).json({
+          success: false,
+          message: error.errors?.originalUrl?.message || 'Please provide a valid URL'
+        });
+      }
+
       res.status(500).json({
         success: false,
         message: 'Server error while shortening URL'
@@ -74,6 +84,40 @@ class UrlController {
       res.status(500).json({
         success: false,
         message: 'Server error while fetching URLs'
+      });
+    }
+  }
+
+  /**
+   * Claim guest-created links for the logged-in user
+   * @route   POST /api/url/claim
+   * @access  Private
+   */
+  async claimGuestLinks(req, res) {
+    try {
+      const errors = validationResult(req);
+      if (!errors.isEmpty()) {
+        return res.status(400).json({
+          success: false,
+          errors: errors.array()
+        });
+      }
+
+      const { shortCodes } = req.body;
+      const result = await urlService.claimGuestLinks(req.user._id, shortCodes);
+
+      return res.status(200).json({
+        success: true,
+        message: result.claimedCount
+          ? 'Guest links claimed successfully'
+          : 'No claimable guest links found',
+        data: result
+      });
+    } catch (error) {
+      console.error('Claim guest links error:', error);
+      return res.status(500).json({
+        success: false,
+        message: 'Server error while claiming guest links'
       });
     }
   }

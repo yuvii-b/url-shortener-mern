@@ -31,6 +31,29 @@ export const protect = async (req, res, next) => {
   }
 };
 
+// Optionally authenticate user if bearer token is present.
+// Requests without token should continue as guest users.
+export const optionalProtect = async (req, res, next) => {
+  if (!req.headers.authorization || !req.headers.authorization.startsWith('Bearer')) {
+    return next();
+  }
+
+  try {
+    const token = req.headers.authorization.split(' ')[1];
+    const decoded = jwt.verify(token, process.env.JWT_SECRET);
+    const user = await User.findById(decoded.id).select('-password');
+
+    if (user) {
+      req.user = user;
+    }
+  } catch (error) {
+    // Invalid optional token should not block public endpoints.
+    req.user = undefined;
+  }
+
+  return next();
+};
+
 // Generate JWT Token
 export const generateToken = (id) => {
   return jwt.sign({ id }, process.env.JWT_SECRET, {

@@ -5,6 +5,10 @@ const apiClient = axios.create({
 });
 
 export function authHeaders(token) {
+  if (!token) {
+    return {};
+  }
+
   return {
     headers: {
       Authorization: `Bearer ${token}`
