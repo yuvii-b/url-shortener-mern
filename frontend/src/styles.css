@@ -736,6 +736,43 @@ a {
 :root[data-theme='dark'] .table td {
   border-bottom-color: #2c3a56;
 }
+:root[data-theme='dark'] .auth-shell {
+  border-color: #2d3d5c;
+  background: #101a2d;
+  box-shadow: 0 18px 42px rgba(0, 0, 0, 0.45);
+}
+:root[data-theme='dark'] .auth-hero {
+  background:
+    linear-gradient(150deg, rgba(25, 83, 214, 0.95), rgba(18, 56, 136, 0.95)),
+    repeating-linear-gradient(45deg, rgba(255, 255, 255, 0.1) 0 3px, transparent 3px 9px);
+}
+:root[data-theme='dark'] .auth-panel {
+  background: #121d33;
+}
+:root[data-theme='dark'] .tab {
+  background: #15223a;
+  border-color: #314567;
+  color: #d6e4ff;
+}
+:root[data-theme='dark'] .tab.active {
+  background: #22395d;
+  border-color: #4f79bc;
+  color: #f2f7ff;
+}
+:root[data-theme='dark'] .auth-panel .input {
+  background: #0f182b;
+  border-color: #334a72;
+  color: #ecf2ff;
+}
+:root[data-theme='dark'] .auth-panel .input::placeholder {
+  color: #8fa3c8;
+}
+:root[data-theme='dark'] .auth-panel .button-primary {
+  background: #2f6fe8;
+}
+:root[data-theme='dark'] .auth-panel .button-primary:hover:not(:disabled) {
+  background: #3b7bf1;
+}
 
 .locked-overlay h2,
 .locked-overlay p {
@@ -770,19 +807,30 @@ a {
   gap: 14px;
 }
 
+.auth-panel label {
+  color: var(--text-main);
+  font-weight: 600;
+}
+
+.auth-panel-head {
+  display: flex;
+  justify-content: flex-end;
+}
+
 .tab-strip {
   display: grid;
   grid-template-columns: 1fr 1fr;
   gap: 8px;
 }
 
+:root[data-theme='dark'] .auth-panel-head .theme-switch {
+  color: #c4d5f7;
+}
+
 .tab {
   padding: 10px;
   border-radius: 10px;
   border: 1px solid var(--border);
-  background: #fff;
-  cursor: pointer;
-  font-weight: 600;
 }
 
 .tab.active {

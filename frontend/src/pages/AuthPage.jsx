@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext.jsx';
 
@@ -13,10 +13,24 @@ export default function AuthPage() {
   const [form, setForm] = useState(initialForm);
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
+  const [theme, setTheme] = useState(() => {
+    const storedTheme = localStorage.getItem('theme');
+
+    if (storedTheme === 'dark' || storedTheme === 'light') {
+      return storedTheme;
+    }
+
+    return window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
+  });
   const { login, register } = useAuth();
   const navigate = useNavigate();
 
   const isRegister = mode === 'register';
+
+  useEffect(() => {
+    document.documentElement.setAttribute('data-theme', theme);
+    localStorage.setItem('theme', theme);
+  }, [theme]);
 
   const onSubmit = async (event) => {
     event.preventDefault();
@@ -53,6 +67,21 @@ export default function AuthPage() {
       </aside>
 
       <section className="auth-panel">
+        <div className="auth-panel-head">
+          <label
+            className="theme-switch"
+            aria-label={theme === 'dark' ? 'Switch to light mode' : 'Switch to dark mode'}
+          >
+            <input
+              type="checkbox"
+              checked={theme === 'dark'}
+              onChange={() => setTheme((prev) => (prev === 'dark' ? 'light' : 'dark'))}
+            />
+            <span className="theme-slider" />
+            <span className="theme-switch-label">{theme === 'dark' ? 'Light mode' : 'Dark mode'}</span>
+          </label>
+        </div>
+
         <div className="tab-strip">
           <button
             type="button"
@@ -70,52 +99,52 @@ export default function AuthPage() {
           </button>
         </div>
 
-        <form className="field" onSubmit={onSubmit}>
-          {isRegister ? (
+          <form className="field" onSubmit={onSubmit}>
+            {isRegister ? (
+              <div className="field">
+                <label htmlFor="username">Username</label>
+                <input
+                  id="username"
+                  className="input"
+                  value={form.username}
+                  minLength={3}
+                  maxLength={30}
+                  onChange={(event) => setForm({ ...form, username: event.target.value })}
+                  required
+                />
+              </div>
+            ) : null}
+
             <div className="field">
-              <label htmlFor="username">Username</label>
+              <label htmlFor="email">Email</label>
               <input
-                id="username"
+                id="email"
                 className="input"
-                value={form.username}
-                minLength={3}
-                maxLength={30}
-                onChange={(event) => setForm({ ...form, username: event.target.value })}
+                type="email"
+                value={form.email}
+                onChange={(event) => setForm({ ...form, email: event.target.value })}
                 required
               />
             </div>
-          ) : null}
 
-          <div className="field">
-            <label htmlFor="email">Email</label>
-            <input
-              id="email"
-              className="input"
-              type="email"
-              value={form.email}
-              onChange={(event) => setForm({ ...form, email: event.target.value })}
-              required
-            />
-          </div>
+            <div className="field">
+              <label htmlFor="password">Password</label>
+              <input
+                id="password"
+                className="input"
+                type="password"
+                minLength={6}
+                value={form.password}
+                onChange={(event) => setForm({ ...form, password: event.target.value })}
+                required
+              />
+            </div>
 
-          <div className="field">
-            <label htmlFor="password">Password</label>
-            <input
-              id="password"
-              className="input"
-              type="password"
-              minLength={6}
-              value={form.password}
-              onChange={(event) => setForm({ ...form, password: event.target.value })}
-              required
-            />
-          </div>
+            {error ? <p className="error">{error}</p> : null}
 
-          {error ? <p className="error">{error}</p> : null}
-
-          <button className="button button-primary" type="submit" disabled={loading}>
-            {loading ? 'Please wait...' : isRegister ? 'Create account' : 'Login'}
-          </button>
+            <button className="button button-primary" type="submit" disabled={loading}>
+              {loading ? 'Please wait...' : isRegister ? 'Create account' : 'Login'}
+            </button>
         </form>
       </section>
     </div>
