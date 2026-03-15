@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { NavLink, useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext.jsx';
 
@@ -60,6 +60,20 @@ export default function Layout({ children }) {
   const { user, logout } = useAuth();
   const navigate = useNavigate();
   const [collapsed, setCollapsed] = useState(false);
+  const [theme, setTheme] = useState(() => {
+    const storedTheme = localStorage.getItem('theme');
+
+    if (storedTheme === 'dark' || storedTheme === 'light') {
+      return storedTheme;
+    }
+
+    return window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
+  });
+
+  useEffect(() => {
+    document.documentElement.setAttribute('data-theme', theme);
+    localStorage.setItem('theme', theme);
+  }, [theme]);
 
   const onLogout = () => {
     logout();
@@ -150,6 +164,20 @@ export default function Layout({ children }) {
             <h1 className="page-title">Create and share short links</h1>
             <p className="muted">Shorten instantly. Login only when you want analytics.</p>
           </div>
+          <label
+            className="theme-switch"
+            aria-label={theme === 'dark' ? 'Switch to light mode' : 'Switch to dark mode'}
+          >
+            <input
+              type="checkbox"
+              checked={theme === 'dark'}
+              onChange={() => setTheme((prev) => (prev === 'dark' ? 'light' : 'dark'))}
+            />
+            <span className="theme-slider" />
+            <span className="theme-switch-label">
+              {theme === 'dark' ? 'Light mode' : 'Dark mode'}
+            </span>
+          </label>
         </header>
 
         <main className="page-grid">{children}</main>

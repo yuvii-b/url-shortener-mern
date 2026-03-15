@@ -1,8 +1,7 @@
-import { useCallback, useEffect, useMemo, useState } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
 import UrlShortenerForm from '../components/UrlShortenerForm.jsx';
 import UrlList from '../components/UrlList.jsx';
-import StatCard from '../components/StatCard.jsx';
 import { useAuth } from '../context/AuthContext.jsx';
 import { deleteUrl, getUserUrls, shortenUrl } from '../services/urlApi.js';
 import { addGuestShortCode } from '../utils/guestLinks.js';
@@ -76,8 +75,6 @@ export default function HomePage() {
     }
   };
 
-  const totalClicks = useMemo(() => urls.reduce((sum, item) => sum + item.clicks, 0), [urls]);
-
   const handleCopyLatest = async () => {
     if (!latestCreatedLink?.shortUrl) {
       return;
@@ -95,19 +92,6 @@ export default function HomePage() {
 
   return (
     <>
-      <section className="split">
-        <StatCard
-          label={token ? 'Total Links' : 'Public Shortener'}
-          value={token ? urls.length : 'Guest Mode'}
-          hint={token ? 'Active short URLs' : 'Anyone can shorten URLs instantly'}
-        />
-        <StatCard
-          label={token ? 'Total Clicks' : 'Analytics Access'}
-          value={token ? totalClicks : 'Login Required'}
-          hint={token ? 'All-time tracked events' : 'Create an account to view dashboard'}
-        />
-      </section>
-
       <UrlShortenerForm onSubmit={onCreate} isLoading={loading} />
 
       {error ? <p className="error">{error}</p> : null}

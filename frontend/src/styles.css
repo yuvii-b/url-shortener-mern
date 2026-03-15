@@ -1,20 +1,43 @@
 @import url('https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500&display=swap');
 
 :root {
-  --bg-main: #f7f3eb;
-  --bg-card: #fffdf9;
-  --text-main: #1d2726;
-  --text-muted: #4a5a58;
-  --accent: #e86f2d;
-  --accent-deep: #b8511d;
-  --accent-soft: #ffe3d1;
-  --teal: #1f7a75;
-  --teal-soft: #ddf4f2;
-  --border: #d7d9d1;
+  --bg-main: #f4f7ff;
+  --bg-card: #ffffff;
+  --text-main: #16233b;
+  --text-muted: #5c6d88;
+  --accent: #1246c9;
+  --accent-deep: #0d338f;
+  --accent-soft: #e8efff;
+  --teal: #1f5fd6;
+  --teal-soft: #dce8ff;
+  --border: #d6e0f2;
   --danger: #bd2d2d;
-  --shadow: 0 14px 38px rgba(23, 31, 30, 0.09);
+  --shadow: 0 14px 38px rgba(17, 42, 99, 0.1);
+  --bg-gradient-a: rgba(18, 70, 201, 0.12);
+  --bg-gradient-b: rgba(56, 125, 255, 0.16);
+  --bg-gradient-base: #f4f7ff;
+  --bg-gradient-end: #f7faff;
   --radius-lg: 20px;
   --radius-md: 14px;
+}
+
+:root[data-theme='dark'] {
+  --bg-main: #0c1220;
+  --bg-card: #121b2d;
+  --text-main: #e5ecff;
+  --text-muted: #9eabc8;
+  --accent: #4f8bff;
+  --accent-deep: #2f6fe8;
+  --accent-soft: #243859;
+  --teal: #5a9dff;
+  --teal-soft: #233759;
+  --border: #2a3750;
+  --danger: #ff6b6b;
+  --shadow: 0 16px 36px rgba(0, 0, 0, 0.45);
+  --bg-gradient-a: rgba(48, 88, 182, 0.22);
+  --bg-gradient-b: rgba(42, 97, 186, 0.2);
+  --bg-gradient-base: #0c1220;
+  --bg-gradient-end: #111b2f;
 }
 
 * {
@@ -26,9 +49,9 @@ body {
   font-family: 'Space Grotesk', sans-serif;
   color: var(--text-main);
   background:
-    radial-gradient(circle at 10% 20%, rgba(232, 111, 45, 0.12), transparent 26%),
-    radial-gradient(circle at 90% 10%, rgba(31, 122, 117, 0.16), transparent 28%),
-    linear-gradient(160deg, #f7f3eb, #f3f9f8 64%);
+    radial-gradient(circle at 12% 18%, var(--bg-gradient-a), transparent 28%),
+    radial-gradient(circle at 86% 12%, var(--bg-gradient-b), transparent 28%),
+    linear-gradient(160deg, var(--bg-gradient-base), var(--bg-gradient-end) 64%);
   min-height: 100vh;
 }
 
@@ -115,7 +138,7 @@ a {
   border-top: 0;
   border-bottom: 0;
   border-right: 1px solid #cfd6dd;
-  background: #f2f4f7;
+  background: #f4f7ff;
 }
 
 .side-nav.collapsed {
@@ -208,8 +231,8 @@ a {
 .lock-badge {
   font-size: 0.72rem;
   text-transform: uppercase;
-  background: #efe8ff;
-  color: #6f4aa5;
+  background: #e6edff;
+  color: #4f64b3;
   border-radius: 999px;
   padding: 3px 8px;
 }
@@ -280,6 +303,72 @@ a {
   border: 1px solid var(--border);
 }
 
+.theme-switch {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  user-select: none;
+  color: var(--text-muted);
+  font-weight: 600;
+}
+
+.theme-switch input {
+  position: absolute;
+  opacity: 0;
+  width: 0;
+  height: 0;
+}
+
+.theme-slider {
+  width: 50px;
+  height: 28px;
+  border-radius: 999px;
+  background: #cbd6eb;
+  border: 1px solid #b8c7e6;
+  position: relative;
+  transition: background 0.25s ease;
+}
+
+.theme-slider::before {
+  content: '';
+  position: absolute;
+  width: 22px;
+  height: 22px;
+  border-radius: 50%;
+  top: 2px;
+  left: 2px;
+  background: #fff;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.2);
+  transition: transform 0.25s ease;
+}
+
+.theme-switch input:checked + .theme-slider {
+  background: #2f6fe8;
+  border-color: #2f6fe8;
+}
+
+.theme-switch input:checked + .theme-slider::before {
+  transform: translateX(22px);
+}
+
+.theme-switch-label {
+  font-size: 0.92rem;
+}
+
+:root[data-theme='dark'] .theme-slider {
+  background: #1e355f;
+  border-color: #325488;
+}
+
+:root[data-theme='dark'] .theme-switch input:checked + .theme-slider {
+  background: #5a9dff;
+  border-color: #5a9dff;
+}
+
+:root[data-theme='dark'] .theme-switch input:checked + .theme-slider::before {
+  background: #f2f6ff;
+}
+
 .page-grid {
   display: grid;
   gap: 18px;
@@ -306,8 +395,8 @@ a {
 }
 
 .link-spotlight {
-  border-color: #b7d6d3;
-  background: linear-gradient(145deg, #ffffff, #f2fbfa);
+  border-color: #b9cbef;
+  background: linear-gradient(145deg, #ffffff, #f1f6ff);
   display: grid;
   gap: 12px;
 }
@@ -324,8 +413,8 @@ a {
 
 .spotlight-url {
   width: 100%;
-  border: 1px solid #95c9c3;
-  background: #e8f7f5;
+  border: 1px solid #9db9ec;
+  background: #eaf1ff;
   padding: 12px 14px;
   border-radius: 12px;
   font-size: 1.03rem;
@@ -557,6 +646,97 @@ a {
   padding: 24px;
 }
 
+:root[data-theme='dark'] .side-nav {
+  background: #101a2e;
+  border-right-color: #2b3a56;
+}
+
+:root[data-theme='dark'] .collapse-toggle {
+  background: #1a2640;
+  color: #dce6ff;
+  border-color: #314468;
+}
+
+:root[data-theme='dark'] .create-button {
+  background: #285fcf;
+}
+
+:root[data-theme='dark'] .divider-line {
+  border-top-color: #2e3d59;
+}
+
+:root[data-theme='dark'] .menu-item {
+  border-color: #2e3d59;
+}
+
+:root[data-theme='dark'] .menu-item.active {
+  background: #1a2b49;
+  border-color: #385688;
+}
+
+:root[data-theme='dark'] .menu-icon {
+  color: #b0bee0;
+}
+
+:root[data-theme='dark'] .links-page {
+  background: #111c31;
+}
+
+:root[data-theme='dark'] .link-item-card {
+  background: #152139;
+  border-color: #2f3f5f;
+}
+
+:root[data-theme='dark'] .locked-section {
+  background: linear-gradient(145deg, #121d32, #0f1a2d);
+}
+
+:root[data-theme='dark'] .locked-overlay {
+  background: rgba(8, 14, 28, 0.52);
+}
+
+:root[data-theme='dark'] .locked-mock-row,
+:root[data-theme='dark'] .locked-mock-card {
+  background: #293a59;
+}
+
+:root[data-theme='dark'] .button-ghost {
+  border-color: #33445f;
+  color: #d9e5ff;
+}
+
+:root[data-theme='dark'] .short-link-text {
+  color: #78a7ff;
+}
+
+:root[data-theme='dark'] .spotlight-url {
+  background: #14243e;
+  border-color: #36527d;
+}
+
+:root[data-theme='dark'] .lock-badge {
+  background: #2b3e63;
+  color: #b9ccf7;
+}
+
+:root[data-theme='dark'] .input,
+:root[data-theme='dark'] .select {
+  background: #121d33;
+  border-color: #324462;
+  color: var(--text-main);
+}
+
+:root[data-theme='dark'] .top-nav,
+:root[data-theme='dark'] .card,
+:root[data-theme='dark'] .surface {
+  background: var(--bg-card);
+}
+
+:root[data-theme='dark'] .table th,
+:root[data-theme='dark'] .table td {
+  border-bottom-color: #2c3a56;
+}
+
 .locked-overlay h2,
 .locked-overlay p {
   margin: 0;
@@ -576,7 +756,7 @@ a {
 
 .auth-hero {
   background:
-    linear-gradient(150deg, rgba(232, 111, 45, 0.95), rgba(184, 81, 29, 0.95)),
+    linear-gradient(150deg, rgba(18, 70, 201, 0.95), rgba(13, 51, 143, 0.95)),
     repeating-linear-gradient(45deg, rgba(255, 255, 255, 0.13) 0 3px, transparent 3px 9px);
   color: #fff;
   padding: 34px;
@@ -611,7 +791,7 @@ a {
 }
 
 .metric {
-  background: linear-gradient(140deg, #fff, #fff8f2);
+  background: linear-gradient(140deg, #fff, #f2f6ff);
   border-radius: 14px;
   border: 1px solid var(--border);
   padding: 14px;
