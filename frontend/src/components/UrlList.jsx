@@ -1,7 +1,20 @@
+import { useState } from 'react';
 import { Link } from 'react-router-dom';
 import { formatDate, shortenText } from '../utils/formatters.js';
 
 export default function UrlList({ urls, onDelete }) {
+  const [copiedId, setCopiedId] = useState('');
+
+  const handleCopy = async (id, shortUrl) => {
+    try {
+      await navigator.clipboard.writeText(shortUrl);
+      setCopiedId(id);
+      setTimeout(() => setCopiedId(''), 1500);
+    } catch {
+      setCopiedId('');
+    }
+  };
+
   if (!urls.length) {
     return (
       <section className="card">
@@ -27,7 +40,7 @@ export default function UrlList({ urls, onDelete }) {
         <tbody>
           {urls.map((item) => (
             <tr key={item.id || item._id}>
-              <td className="mono">{item.shortCode}</td>
+              <td className="mono">{item.shortUrl}</td>
               <td title={item.originalUrl}>{shortenText(item.originalUrl, 52)}</td>
               <td>
                 <span className="tag">{item.clicks}</span>
@@ -38,9 +51,9 @@ export default function UrlList({ urls, onDelete }) {
                   <button
                     className="button button-ghost"
                     type="button"
-                    onClick={() => navigator.clipboard.writeText(item.shortUrl)}
+                    onClick={() => handleCopy(item.id || item._id, item.shortUrl)}
                   >
-                    Copy
+                    {copiedId === (item.id || item._id) ? 'Copied' : 'Copy'}
                   </button>
                   <Link className="button button-ghost" to="/analytics">
                     Analytics

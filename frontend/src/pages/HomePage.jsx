@@ -10,7 +10,8 @@ import { addGuestShortCode } from '../utils/guestLinks.js';
 export default function HomePage() {
   const { token } = useAuth();
   const [urls, setUrls] = useState([]);
-  const [latestGuestLink, setLatestGuestLink] = useState(null);
+  const [latestCreatedLink, setLatestCreatedLink] = useState(null);
+  const [copiedState, setCopiedState] = useState('idle');
   const [error, setError] = useState('');
   const [success, setSuccess] = useState('');
   const [loading, setLoading] = useState(false);
@@ -44,15 +45,14 @@ export default function HomePage() {
       const response = await shortenUrl(token, originalUrl);
       const successMessage = response.message || 'Short link created';
       setSuccess(successMessage);
+      setLatestCreatedLink(response.data || null);
 
       if (token) {
-        setLatestGuestLink(null);
         await loadUrls();
       } else {
         if (response.data?.shortCode) {
           addGuestShortCode(response.data.shortCode);
         }
-        setLatestGuestLink(response.data || null);
       }
     } catch (apiError) {
       const message =
@@ -78,6 +78,21 @@ export default function HomePage() {
 
   const totalClicks = useMemo(() => urls.reduce((sum, item) => sum + item.clicks, 0), [urls]);
 
+  const handleCopyLatest = async () => {
+    if (!latestCreatedLink?.shortUrl) {
+      return;
+    }
+
+    try {
+      await navigator.clipboard.writeText(latestCreatedLink.shortUrl);
+      setCopiedState('copied');
+      setTimeout(() => setCopiedState('idle'), 1800);
+    } catch {
+      setCopiedState('error');
+      setTimeout(() => setCopiedState('idle'), 1800);
+    }
+  };
+
   return (
     <>
       <section className="split">
@@ -98,21 +113,24 @@ export default function HomePage() {
       {error ? <p className="error">{error}</p> : null}
       {success ? <p className="success">{success}</p> : null}
 
-      {!token && latestGuestLink ? (
-        <section className="card">
-          <h2>Your short URL</h2>
-          <p className="muted">Use this link now. Login is only needed for analytics dashboard access.</p>
-          <div className="field-row">
-            <a className="mono" href={latestGuestLink.shortUrl} target="_blank" rel="noreferrer">
-              {latestGuestLink.shortUrl}
-            </a>
-            <button
-              className="button button-ghost"
-              type="button"
-              onClick={() => navigator.clipboard.writeText(latestGuestLink.shortUrl)}
-            >
-              Copy
+      {latestCreatedLink ? (
+        <section className="card link-spotlight">
+          <h2>Your link is ready</h2>
+          <p className="muted">This is your full shortened URL. Copy and share it.</p>
+          <div className="spotlight-url-row">
+            <div className="spotlight-url mono">{latestCreatedLink.shortUrl}</div>
+          </div>
+          <div className="spotlight-actions">
+            <button className="button button-primary" type="button" onClick={handleCopyLatest}>
+              {copiedState === 'copied' ? 'Copied' : 'Copy link'}
             </button>
+            <a className="button button-ghost" href={latestCreatedLink.shortUrl} target="_blank" rel="noreferrer">
+              Open link
+            </a>
+          </div>
+          <div className="spotlight-feedback">
+            {copiedState === 'copied' ? <p className="success">Link copied to clipboard.</p> : null}
+            {copiedState === 'error' ? <p className="error">Could not copy link. Please copy manually.</p> : null}
           </div>
         </section>
       ) : null}

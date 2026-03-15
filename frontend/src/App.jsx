@@ -1,9 +1,11 @@
 import { Navigate, Route, Routes } from 'react-router-dom';
-import ProtectedRoute from './components/ProtectedRoute.jsx';
 import Layout from './components/Layout.jsx';
 import AuthPage from './pages/AuthPage.jsx';
 import HomePage from './pages/HomePage.jsx';
+import LinksPage from './pages/LinksPage.jsx';
 import AnalyticsPage from './pages/AnalyticsPage.jsx';
+import LockedSectionPage from './pages/LockedSectionPage.jsx';
+import QrComingSoonPage from './pages/QrComingSoonPage.jsx';
 import { useAuth } from './context/AuthContext.jsx';
 
 export default function App() {
@@ -23,11 +25,25 @@ export default function App() {
       <Route
         path="/analytics"
         element={
-          <ProtectedRoute>
-            <Layout>
-              <AnalyticsPage />
-            </Layout>
-          </ProtectedRoute>
+          <Layout>
+            {token ? <AnalyticsPage /> : <LockedSectionPage sectionName="Analytics" />}
+          </Layout>
+        }
+      />
+      <Route
+        path="/links"
+        element={
+          <Layout>
+            {token ? <LinksPage /> : <LockedSectionPage sectionName="Links" />}
+          </Layout>
+        }
+      />
+      <Route
+        path="/qr-codes"
+        element={
+          <Layout>
+            <QrComingSoonPage />
+          </Layout>
         }
       />
       <Route path="*" element={<Navigate to="/" replace />} />

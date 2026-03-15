@@ -1,9 +1,65 @@
+import { useState } from 'react';
 import { NavLink, useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext.jsx';
+
+function MenuIcon({ type }) {
+  const commonProps = {
+    width: 20,
+    height: 20,
+    viewBox: '0 0 24 24',
+    fill: 'none',
+    stroke: 'currentColor',
+    strokeWidth: 2,
+    strokeLinecap: 'round',
+    strokeLinejoin: 'round'
+  };
+
+  if (type === 'home') {
+    return (
+      <svg {...commonProps}>
+        <path d="m3 11 9-8 9 8" />
+        <path d="M5 10v10h14V10" />
+        <path d="M9 20v-6h6v6" />
+      </svg>
+    );
+  }
+
+  if (type === 'link') {
+    return (
+      <svg {...commonProps}>
+        <path d="M10 13a5 5 0 0 0 7.07 0l2.83-2.83a5 5 0 0 0-7.07-7.07L10 5" />
+        <path d="M14 11a5 5 0 0 0-7.07 0L4.1 13.83a5 5 0 0 0 7.07 7.07L14 18" />
+      </svg>
+    );
+  }
+
+  if (type === 'qr') {
+    return (
+      <svg {...commonProps}>
+        <rect x="3" y="3" width="7" height="7" />
+        <rect x="14" y="3" width="7" height="7" />
+        <rect x="3" y="14" width="7" height="7" />
+        <path d="M14 14h3v3h-3z" />
+        <path d="M20 14v6" />
+        <path d="M17 20h4" />
+      </svg>
+    );
+  }
+
+  return (
+    <svg {...commonProps}>
+      <path d="M4 20V9" />
+      <path d="M10 20V4" />
+      <path d="M16 20v-8" />
+      <path d="M22 20V12" />
+    </svg>
+  );
+}
 
 export default function Layout({ children }) {
   const { user, logout } = useAuth();
   const navigate = useNavigate();
+  const [collapsed, setCollapsed] = useState(false);
 
   const onLogout = () => {
     logout();
@@ -11,43 +67,93 @@ export default function Layout({ children }) {
   };
 
   return (
-    <div className="app-shell">
-      <header className="surface top-nav">
-        <div className="brand">
+    <div className={`app-shell app-shell-with-sidebar ${collapsed ? 'sidebar-collapsed' : ''}`}>
+      <aside className={`surface side-nav ${collapsed ? 'collapsed' : ''}`}>
+        <button
+          type="button"
+          className="collapse-toggle"
+          onClick={() => setCollapsed((prev) => !prev)}
+          aria-label={collapsed ? 'Expand sidebar' : 'Collapse sidebar'}
+        >
+          {collapsed ? '>' : '<'}
+        </button>
+
+        <div className="brand side-brand">
           <span className="brand-mark" />
-          <span>NovaLink</span>
+          {!collapsed ? <span>NovaLink</span> : null}
         </div>
 
-        <nav className="nav-links">
-          <NavLink to="/" className={({ isActive }) => `nav-link ${isActive ? 'active' : ''}`}>
-            Shortener
+        <button type="button" className="button create-button" onClick={() => navigate('/')}>
+          {collapsed ? '+' : 'Create new'}
+        </button>
+
+        <div className="divider-line" />
+
+        <nav className="menu-list">
+          <NavLink to="/" className={({ isActive }) => `menu-item ${isActive ? 'active' : ''}`}>
+            <span className="menu-icon">
+              <MenuIcon type="home" />
+            </span>
+            {!collapsed ? <span>Home</span> : null}
           </NavLink>
 
+          <NavLink
+            to="/links"
+            className={({ isActive }) => `menu-item ${isActive ? 'active' : ''} ${!user ? 'locked' : ''}`}
+          >
+            <span className="menu-icon">
+              <MenuIcon type="link" />
+            </span>
+            {!collapsed ? <span>Links</span> : null}
+            {!user && !collapsed ? <span className="lock-badge">Login</span> : null}
+          </NavLink>
+
+          <NavLink to="/qr-codes" className={({ isActive }) => `menu-item ${isActive ? 'active' : ''}`}>
+            <span className="menu-icon">
+              <MenuIcon type="qr" />
+            </span>
+            {!collapsed ? <span>QR Codes</span> : null}
+            {!collapsed ? <span className="lock-badge">Soon</span> : null}
+          </NavLink>
+
+          <NavLink
+            to="/analytics"
+            className={({ isActive }) => `menu-item ${isActive ? 'active' : ''} ${!user ? 'locked' : ''}`}
+          >
+            <span className="menu-icon">
+              <MenuIcon type="analytics" />
+            </span>
+            {!collapsed ? <span>Analytics</span> : null}
+            {!user && !collapsed ? <span className="lock-badge">Login</span> : null}
+          </NavLink>
+        </nav>
+
+        <div className="side-footer">
           {user ? (
             <>
-              <NavLink
-                to="/analytics"
-                className={({ isActive }) => `nav-link ${isActive ? 'active' : ''}`}
-              >
-                Analytics
-              </NavLink>
-              <span className="muted">@{user.username}</span>
+              {!collapsed ? <div className="muted">Signed in as @{user.username}</div> : null}
               <button type="button" className="button button-ghost" onClick={onLogout}>
-                Logout
+                {collapsed ? 'Out' : 'Logout'}
               </button>
             </>
           ) : (
-            <>
-              <span className="muted">Login required for analytics</span>
-              <NavLink to="/auth" className="button button-primary">
-                Login / Register
-              </NavLink>
-            </>
+            <NavLink to="/auth" className="button button-primary">
+              {collapsed ? 'In' : 'Login / Register'}
+            </NavLink>
           )}
-        </nav>
-      </header>
+        </div>
+      </aside>
 
-      <main className="page-grid">{children}</main>
+      <section className="content-shell">
+        <header className="surface top-nav">
+          <div>
+            <h1 className="page-title">Create and share short links</h1>
+            <p className="muted">Shorten instantly. Login only when you want analytics.</p>
+          </div>
+        </header>
+
+        <main className="page-grid">{children}</main>
+      </section>
     </div>
   );
 }
