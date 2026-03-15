@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from 'react';
+import { useCallback, useEffect, useMemo, useState } from 'react';
 import ChartPanel from '../components/ChartPanel.jsx';
 import StatCard from '../components/StatCard.jsx';
 import { useAuth } from '../context/AuthContext.jsx';
@@ -14,9 +14,12 @@ export default function AnalyticsPage() {
   const [urlAnalytics, setUrlAnalytics] = useState(null);
   const [error, setError] = useState('');
 
-  useEffect(() => {
-    async function loadInitial() {
-      setError('');
+  const loadDashboard = useCallback(
+    async ({ silent = false } = {}) => {
+      if (!silent) {
+        setError('');
+      }
+
       try {
         const [dashboardData, urlsData] = await Promise.all([
           getDashboardAnalytics(token),
@@ -25,16 +28,56 @@ export default function AnalyticsPage() {
 
         setDashboard(dashboardData);
         setUrls(urlsData);
-        if (urlsData.length) {
-          setSelectedUrlId(urlsData[0].id || urlsData[0]._id);
-        }
-      } catch {
-        setError('Failed to load analytics dashboard');
-      }
-    }
+        setSelectedUrlId((current) => {
+          if (!urlsData.length) {
+            return '';
+          }
 
-    loadInitial();
-  }, [token]);
+          if (current && urlsData.some((item) => (item.id || item._id) === current)) {
+            return current;
+          }
+
+          return urlsData[0].id || urlsData[0]._id;
+        });
+      } catch {
+        if (!silent) {
+          setError('Failed to load analytics dashboard');
+        }
+      }
+    },
+    [token]
+  );
+
+  useEffect(() => {
+    loadDashboard();
+  }, [loadDashboard]);
+
+  useEffect(() => {
+    const refresh = () => {
+      loadDashboard({ silent: true });
+    };
+
+    const intervalId = window.setInterval(refresh, 15000);
+
+    const onFocus = () => {
+      refresh();
+    };
+
+    const onVisibilityChange = () => {
+      if (document.visibilityState === 'visible') {
+        refresh();
+      }
+    };
+
+    window.addEventListener('focus', onFocus);
+    document.addEventListener('visibilitychange', onVisibilityChange);
+
+    return () => {
+      window.clearInterval(intervalId);
+      window.removeEventListener('focus', onFocus);
+      document.removeEventListener('visibilitychange', onVisibilityChange);
+    };
+  }, [loadDashboard]);
 
   useEffect(() => {
     async function loadUrlAnalytics() {
