@@ -24,7 +24,8 @@ class UrlController {
       // Call service to shorten URL
       const { url, isNew } = await urlService.shortenUrl(originalUrl, userId);
 
-      const frontendUrl = process.env.FRONTEND_URL || `${req.protocol}://${req.get('host')}`;
+      // Sanitize FRONTEND_URL by removing trailing slashes
+      const frontendUrl = (process.env.FRONTEND_URL || `${req.protocol}://${req.get('host')}`).replace(/\/+$/, '');
       const response = {
         success: true,
         message: 'URL shortened successfully',
@@ -64,7 +65,7 @@ class UrlController {
   async getUserUrls(req, res) {
     try {
       const urls = await urlService.getUserUrls(req.user._id);
-      const frontendUrl = process.env.FRONTEND_URL || `${req.protocol}://${req.get('host')}`;
+      const frontendUrl = (process.env.FRONTEND_URL || `${req.protocol}://${req.get('host')}`).replace(/\/+$/, '');
 
       const urlsWithFullPath = urls.map((url) => ({
         id: url._id,
