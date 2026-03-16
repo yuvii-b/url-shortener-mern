@@ -24,6 +24,7 @@ class UrlController {
       // Call service to shorten URL
       const { url, isNew } = await urlService.shortenUrl(originalUrl, userId);
 
+      const frontendUrl = process.env.FRONTEND_URL || `${req.protocol}://${req.get('host')}`;
       const response = {
         success: true,
         message: 'URL shortened successfully',
@@ -31,7 +32,7 @@ class UrlController {
         data: {
           originalUrl: url.originalUrl,
           shortCode: url.shortCode,
-          shortUrl: `${req.protocol}://${req.get('host')}/${url.shortCode}`,
+          shortUrl: `${frontendUrl}/${url.shortCode}`,
           clicks: url.clicks,
           createdAt: url.createdAt
         }
@@ -63,12 +64,13 @@ class UrlController {
   async getUserUrls(req, res) {
     try {
       const urls = await urlService.getUserUrls(req.user._id);
+      const frontendUrl = process.env.FRONTEND_URL || `${req.protocol}://${req.get('host')}`;
 
       const urlsWithFullPath = urls.map((url) => ({
         id: url._id,
         originalUrl: url.originalUrl,
         shortCode: url.shortCode,
-        shortUrl: `${req.protocol}://${req.get('host')}/${url.shortCode}`,
+        shortUrl: `${frontendUrl}/${url.shortCode}`,
         clicks: url.clicks,
         createdAt: url.createdAt,
         lastAccessedAt: url.lastAccessedAt
@@ -191,8 +193,13 @@ class UrlController {
         });
       }
 
-      // Redirect to original URL with permanent redirect
-      res.redirect(301, url.originalUrl);
+      // Return JSON with original URL - frontend handles the redirect
+      return res.status(200).json({
+        success: true,
+        originalUrl: url.originalUrl,
+        shortCode: url.shortCode,
+        clicks: url.clicks
+      });
     } catch (error) {
       // Only log actual server errors, not 404s
       if (error.message !== 'URL not found') {
