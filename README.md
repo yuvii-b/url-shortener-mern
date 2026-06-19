@@ -93,7 +93,7 @@ NovaLink is a full-stack web application that simplifies URL sharing and analyti
 ## 🏗️ Architecture
 
 ```
-url-shortener-mern/
+novalink/
 ├── frontend/                      # React + Vite application
 │   ├── public/
 │   │   └── favicon.svg           # URL-themed chain link icon
@@ -167,8 +167,8 @@ url-shortener-mern/
 
 1. **Clone the repository**
 ```bash
-git clone https://github.com/yuvii-b/url-shortener-mern.git
-cd url-shortener-mern/backend
+git clone https://github.com/yuvii-b/novalink.git
+cd novalink/backend
 ```
 
 2. **Install dependencies**

@@ -1,5 +1,5 @@
 {
-  "name": "url-shortener-backend",
+  "name": "novalink-backend",
   "version": "1.0.0",
   "description": "Backend API for URL Shortener with custom prime-based hashing",
   "main": "server.js",
@@ -9,7 +9,7 @@
     "dev": "nodemon server.js"
   },
   "keywords": [
-    "url-shortener",
+    "novalink",
     "express",
     "mongodb",
     "jwt"
